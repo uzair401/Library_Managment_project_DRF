@@ -34,7 +34,7 @@ class Book(models.Model):
         max_length=20,
         choices=[
             ('available', 'Available'),
-            ('borrowed', 'Boroorwed'),
+            ('borrowed', 'Borrowed'),
         ],
         default='available'
     )

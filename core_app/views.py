@@ -22,10 +22,13 @@ def genre_list(request):
         serializer = GenreSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
     if request.method == 'POST':
-        serializer = GenreSerializer(data=request.data)
+        if isinstance(request.data, list):
+            serializer = GenreSerializer(data=request.data, many=True)
+        else:
+            serializer = GenreSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response( serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -56,10 +59,13 @@ def rack(request):
         serializer = RackSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
     if request.method == 'POST':
-        serializer = RackSerializer(data = request.data)
+        if isinstance(request.data, list):
+            serializer = RackSerializer(data=request.data, many=True)
+        else:
+            serializer = RackSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message" : "Rack has been added to the Library"}, serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -91,7 +97,10 @@ def book(request):
         serializer = BookSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
     if request.method == 'POST':
-        serializer = BookSerializer(data = request.data)
+        if isinstance (request.data, list):
+            serializer = BookSerializer(data = request.data, many=True)
+        else:
+            serializer = BookSerializer(data = request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({"message" : "Book has been added to the Library"}, serializer.data, status=status.HTTP_201_CREATED)
