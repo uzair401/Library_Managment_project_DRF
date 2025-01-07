@@ -28,8 +28,8 @@ class Book(models.Model):
     publication_year = models.IntegerField()
     copies_available = models.IntegerField()
     total_copies = models.IntegerField()
-    genre = models.ForeignKey('Genre', on_delete= models.CASCADE)
-    rack = models.ForeignKey('Rack', on_delete= models.CASCADE)
+    genre = models.ForeignKey('Genre', on_delete=models.CASCADE, null=True)
+    rack = models.ForeignKey('Rack', on_delete=models.CASCADE, null=True)
     status = models.CharField(
         max_length=20,
         choices=[
@@ -38,9 +38,22 @@ class Book(models.Model):
         ],
         default='available'
     )
-    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['title']
+        verbose_name = 'Book'
+        verbose_name_plural = 'Books'
+
     def __str__(self):
-        return self.title
+        return f"{self.title} by {self.author}"
+
+    def is_available(self):
+        return self.copies_available > 0
+
+    def can_borrow(self):
+        return self.status == 'available' and self.is_available()
     
 
 class BorrowedRecord(models.Model):
@@ -61,4 +74,4 @@ class BorrowedRecord(models.Model):
         default='pending'
     )
     def __str__(self):
-        return self.book.title 
+        return self.book.title

@@ -96,14 +96,16 @@ def book(request):
         result_page = paginator.paginate_queryset(books, request)
         serializer = BookSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
+    
     if request.method == 'POST':
-        if isinstance (request.data, list):
-            serializer = BookSerializer(data = request.data, many=True)
+        if isinstance(request.data, list):
+            serializer = BookSerializer(data=request.data, many=True)
         else:
-            serializer = BookSerializer(data = request.data)
+            serializer = BookSerializer(data=request.data)
+            
         if serializer.is_valid():
             serializer.save()
-            return Response({"message" : "Book has been added to the Library"}, serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -161,7 +163,7 @@ def borrowed_books(request):
         book_id = request.data.get('book')
         try:
             book = Book.objects.get(id=book_id)
-            if book.available_copies <= 0:
+            if book.copies_available <= 0:
                 return Response(
                     {"error": "Book not available"}, 
                     status=status.HTTP_400_BAD_REQUEST
@@ -169,7 +171,7 @@ def borrowed_books(request):
             serializer = BorrowedRecordSerializer(data=request.data)
             if serializer.is_valid():
                 borrowed = serializer.save()
-                book.available_copies -= 1
+                book.copies_available -= 1
                 book.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Book.DoesNotExist:
@@ -209,7 +211,7 @@ def return_book(request, pk):
         borrowed_book.save()
         
         book = borrowed_book.book
-        book.available_copies += 1
+        book.copies_available += 1
         book.save()
         
         return Response(
